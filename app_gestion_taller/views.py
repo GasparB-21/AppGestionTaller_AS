@@ -32,7 +32,7 @@ def registrar_cliente(request):
     #Si se valudan correctamente, se crea el cliente
     else:
         cliente = Cliente.objects.create(nombre=nombre, telefono=telefono, email=email)
-        #Ver como se crea el id del cliente (es autoincremental)
+        #Si no se especifica otra PK ORM creará un campo id q será autoincremental
         return JsonResponse({"message": "Cliente creado con éxito", "id": cliente.id, "nombre": cliente.nombre, "telefono": cliente.telefono, "email": cliente.email}, status=201)
 
 @csrf_exempt 
@@ -56,6 +56,7 @@ def registrar_coche(request):
     if not cliente_id or not marca or not modelo or not matricula:
         return JsonResponse({"error": "Faltan datos o el cliente indicado no está registrado"}, status=400)
     
+    #Validamos existencia FK
     try:
         cliente = Cliente.objects.get(id=cliente_id)
     except Cliente.DoesNotExist:
@@ -102,10 +103,11 @@ def registrar_reparacion(request):
     servicio_realizado = data.get("servicio")
     fecha_servicio = data.get("fecha_servicio")
 
-    #Validar datos (opcional)
+    #Validar datos
     if not matricula_coche or not servicio_realizado or not fecha_servicio:
         return JsonResponse({"error": "Faltan datos o el coche / servicio seleccionado no está disponibls"}, status=400)
     
+    #Validamos existencia FKs
     try:
         coche = Coche.objects.get(matricula=matricula_coche)
     except Coche.DoesNotExist:
@@ -119,13 +121,16 @@ def registrar_reparacion(request):
     return JsonResponse({"message": "Reparación registrada con éxito  con éxito", "id": reparacion.id, "coche": matricula_coche, "servicio": servicio_realizado, "fecha_reparacion": reparacion.fecha_servicio}, status=201)
 
 
-#Fetch
+#Fetch --> No se va a mostrar el mensaje de "Método no permitido pq no tengo el @csrf_exempt"
 #Listar clientes
 def listar_clientes(request):
     if request.method != "GET":
         return JsonResponse({"error": "Método no permitido"}, status=405)
+    
     try:
         listaClientes = list(Cliente.objects.values("id", "nombre", "telefono", "email"))
+        #safe = false --> permite serializar tipos de datos que no son diccionarios, principalmente listas, facilitando el envío de arrays de objetos JSON. 
+        #Por defecto, safe=True solo permite diccionarios para evitar vulnerabilidades de seguridad en navegadores antiguos
         return JsonResponse(listaClientes, safe=False)
     except Cliente.DoesNotExist:
         return JsonResponse({"message": "No hay clientes registrados"}, status=404)
@@ -148,13 +153,13 @@ def listar_servicios(request):
         return JsonResponse({"error": "Método no permitido"}, status=405)
      
     try:
-        listaServicios = Servicio.objects.values("id", "nombre", "descripcion").get()
+        listaServicios = list(Servicio.objects.values("id", "nombre", "descripcion"))
         return JsonResponse(listaServicios, safe=False)
-    except Cliente.DoesNotExist:
+    except Servicio.DoesNotExist:
         return JsonResponse({"message": "No hay reparaciones disponibles"}, status=404)
     
 #Historial cliente
-#REPASAR: Revisar pq se imprime reparacion 3 veces y mejorar eficiencia
+#EXTRA: Mejorar eficiencia búsqueda
 def historial_cliente(request, cliente_id):
     if request.method != "GET":
         return JsonResponse({"error": "Método no permitido"}, status=405)

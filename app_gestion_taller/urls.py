@@ -20,7 +20,6 @@ urlpatterns = [
     path('clientes/<int:cliente_id>/', buscar_clienteById, name='buscar_cliente_id'),
     #Lista servcios
     path('servicios/', listar_servicios, name='listar_servicios'),
-
     #Buscar todos los coches de un cliente con sus respectivas reparaciones
     path('clientes/historial/<int:cliente_id>/', historial_cliente, name='buscar_cliente_id'),
 ]

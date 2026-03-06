@@ -1,7 +1,5 @@
 from django.db import models
 
-# Create your models here.
-
 class Cliente(models.Model):
     nombre = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
@@ -10,6 +8,7 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nombre
 
+#La PK será la matricula y no el valor autogenerado por ORM
 class Coche(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     marca = models.CharField(max_length=50)
@@ -20,7 +19,7 @@ class Coche(models.Model):
         return f"{self.marca} {self.modelo} ({self.matricula})"
     
 class Servicio(models.Model):
-    #Este campo no es prescindibles si ya tenemos la tabla de abajo??
+    #DUDA: Cual es el objetivo de este campo si ya mantenemos la relacion entre los coches y los servicios prestados a cada uno en la table reparaciones??
     #coches = models.ManyToManyField(Coche, through='CocheServicio')
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
