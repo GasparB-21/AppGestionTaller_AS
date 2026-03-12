@@ -21,5 +21,5 @@ urlpatterns = [
     #Lista servcios
     path('servicios/', listar_servicios, name='listar_servicios'),
     #Buscar todos los coches de un cliente con sus respectivas reparaciones
-    path('clientes/historial/<int:cliente_id>/', historial_cliente, name='buscar_cliente_id'),
+    path('clientes/historial/<int:cliente_id>/', historial_cliente, name='historial_cliente_id'),
 ]

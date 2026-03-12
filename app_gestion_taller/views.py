@@ -1,8 +1,7 @@
-from django.shortcuts import render
-
 # Create your views here.
 import json
 from django.http import JsonResponse
+from django.shortcuts import render
 from .models import *
 
 
@@ -128,10 +127,14 @@ def listar_clientes(request):
         return JsonResponse({"error": "Método no permitido"}, status=405)
     
     try:
-        listaClientes = list(Cliente.objects.values("id", "nombre", "telefono", "email"))
+        #listaClientes = list(Cliente.objects.values("id", "nombre", "telefono", "email"))
         #safe = false --> permite serializar tipos de datos que no son diccionarios, principalmente listas, facilitando el envío de arrays de objetos JSON. 
         #Por defecto, safe=True solo permite diccionarios para evitar vulnerabilidades de seguridad en navegadores antiguos
-        return JsonResponse(listaClientes, safe=False)
+        #return JsonResponse(listaClientes, safe=False)
+
+        listaClientes = Cliente.objects.all()
+        dirClientes = {'clientes': listaClientes}
+        return render(request, 'app_gestion_taller/lista_clientes.html', dirClientes)
     except Cliente.DoesNotExist:
         return JsonResponse({"message": "No hay clientes registrados"}, status=404)
 
@@ -142,8 +145,16 @@ def buscar_clienteById(request, cliente_id):
         return JsonResponse({"error": "Método no permitido"}, status=405)
      
     try:
-        cliente = Cliente.objects.values("id", "nombre", "telefono", "email").get(id=cliente_id)
-        return JsonResponse(cliente, safe=False)
+        #cliente = Cliente.objects.values("id", "nombre", "telefono", "email").get(id=cliente_id)
+        #return JsonResponse(cliente, safe=False)
+
+        cliente = Cliente.objects.all().get(id = cliente_id)
+        coches = Coche.objects.filter(cliente=cliente)
+        dirCliente = {
+                        'cliente': cliente,
+                        'coches': coches
+                     }
+        return render(request, 'app_gestion_taller/info_cliente.html', dirCliente)
     except Cliente.DoesNotExist:
         return JsonResponse({"message": "El cliente filtrado no existe."}, status=404)
 
@@ -153,8 +164,13 @@ def listar_servicios(request):
         return JsonResponse({"error": "Método no permitido"}, status=405)
      
     try:
-        listaServicios = list(Servicio.objects.values("id", "nombre", "descripcion"))
-        return JsonResponse(listaServicios, safe=False)
+        #listaServicios = list(Servicio.objects.values("id", "nombre", "descripcion"))
+        #return JsonResponse(listaServicios, safe=False)
+
+        listaServicios = Servicio.objects.all()
+        dirServicios = {'servicios': listaServicios}
+        return render(request, 'app_gestion_taller/lista_servicios.html', dirServicios)
+
     except Servicio.DoesNotExist:
         return JsonResponse({"message": "No hay reparaciones disponibles"}, status=404)
     
@@ -173,8 +189,16 @@ def historial_cliente(request, cliente_id):
     #Filtramos los coches del cliente
     listaCocheCliente = list(Coche.objects.filter(cliente__id=cliente_id)
                                               .values("marca", "modelo", "matricula"))
+    
+    #Definimos el diccionario q vamos a usar en las respuestas
+    historialCliente = {
+        "cliente": clienteFiltrado,
+        "coches": listaCocheCliente
+    }
+    
     if not listaCocheCliente:
-        return JsonResponse({"cliente": clienteFiltrado, "message": "El cliente no tiene coches registrados."}, status=404) 
+        #return JsonResponse({"cliente": clienteFiltrado, "message": "El cliente no tiene coches registrados."}, status=404)
+        return render(request, 'app_gestion_taller/info_historial_cliente.html', historialCliente) 
     
     for cocheFiltrado in listaCocheCliente:
         reparaciones = Reparacion.objects.select_related('servicio').filter(coche_id=cocheFiltrado["matricula"])
@@ -190,9 +214,7 @@ def historial_cliente(request, cliente_id):
             for r in reparaciones
         ]
 
-    respuesta = {
-        "cliente": clienteFiltrado,
-        "coches": listaCocheCliente
-    }
+    
 
-    return JsonResponse(respuesta, safe=True)
+    return render(request, 'app_gestion_taller/info_historial_cliente.html', historialCliente)
+    #return JsonResponse(respuesta, safe=True)
