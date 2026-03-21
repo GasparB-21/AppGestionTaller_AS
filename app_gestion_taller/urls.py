@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .views import *
+from .views_forms import *
 from django.urls import path
 
 urlpatterns = [
@@ -22,4 +23,10 @@ urlpatterns = [
     path('servicios/', listar_servicios, name='listar_servicios'),
     #Buscar todos los coches de un cliente con sus respectivas reparaciones
     path('clientes/historial/<int:cliente_id>/', historial_cliente, name='historial_cliente_id'),
+
+    #Clase 19 marzo
+    #Formularios
+    path('clientes/nuevo/', formulario_registro_cliente, name='formulario_registro_cliente'),
+    path('coche/nuevo/', formulario_registro_coche, name='formulario_registro_coche'),
+    path('servicio/nuevo/', formulario_registro_servicio, name='formulario_registro_servicio')
 ]
