@@ -4,6 +4,11 @@ Aplicación para la gestión de un taller de coches creada en las clases de la a
 Esta app permite registrar y consultar clientes, coches, servicios y reparaciones del taller. Los datos pueden gestionarse mediante vistas que devuelven listados y formularios web para crear nuevos registros.
 
 ## Acceso a la aplicación
+Para ejecutar la aplicacion es necesario tener instalado Django.
+```bash
+pip install django
+```
+
 La aplicación principal está montada bajo el prefijo `/gestion/`. Si el servidor Django se ejecuta en `http://localhost:8000/`, las rutas disponibles son:
 
 - `http://localhost:8000/gestion/clientes/registrar/` — registrar un nuevo cliente
